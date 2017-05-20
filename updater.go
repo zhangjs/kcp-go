@@ -4,6 +4,8 @@ import (
 	"container/heap"
 	"sync"
 	"time"
+
+	"github.com/satori/go.uuid"
 )
 
 var updater updateHeap
@@ -15,7 +17,7 @@ func init() {
 
 // entry contains a session update info
 type entry struct {
-	sid uint32
+	sid uuid.UUID
 	ts  time.Time
 	s   *UDPSession
 }
@@ -23,7 +25,7 @@ type entry struct {
 // a global heap managed kcp.flush() caller
 type updateHeap struct {
 	entries  []entry
-	indices  map[uint32]int
+	indices  map[uuid.UUID]int
 	mu       sync.Mutex
 	chWakeUp chan struct{}
 }
@@ -52,7 +54,7 @@ func (h *updateHeap) Pop() interface{} {
 }
 
 func (h *updateHeap) init() {
-	h.indices = make(map[uint32]int)
+	h.indices = make(map[uuid.UUID]int)
 	h.chWakeUp = make(chan struct{}, 1)
 }
 
